@@ -5,7 +5,6 @@ from ui import UI, console, init_terminal
 import subprocess
 import sys
 
-
 class App:
     def __init__(self):
         self.api = YouTubeAPI()
@@ -19,6 +18,15 @@ class App:
             self.ui.clear()
             self.ui.show_banner()
 
+            if self.current_video and not self.player.is_playing() and not self.player.paused:
+                if not self.queue.is_empty():
+                    video = self.queue.next()
+                    console.print("[dim white]  fetching stream...[/dim white]")
+                    self.player.play(video)
+                    self.current_video = video
+                else:
+                    self.current_video = None
+
             if self.current_video:
                 self.ui.show_now_playing(self.current_video, self.player.paused)
 
@@ -28,7 +36,6 @@ class App:
             if command == "search":
                 self.ui.clear()
                 self.ui.show_banner()
-
                 query = self.ui.get_input("Search query:")
                 results_data = self.api.search(query)
 
@@ -50,7 +57,6 @@ class App:
                     continue
 
                 self.ui.show_results(results)
-
                 choice_input = self.ui.get_input("Add to queue (or press enter to cancel):")
 
                 if choice_input == "":
@@ -87,6 +93,7 @@ class App:
                 self.player.stop()
                 if not self.queue.is_empty():
                     video = self.queue.next()
+                    console.print("[dim white]  fetching stream...[/dim white]")
                     self.player.play(video)
                     self.current_video = video
                 else:
@@ -102,7 +109,6 @@ class App:
             elif command == "quit":
                 self.player.stop()
                 exit()
-
 
 init_terminal()
 app = App()
