@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import html
 from dataclasses import dataclass
 
 
@@ -53,12 +54,16 @@ class YouTubeAPI:
             results = []
 
             for item in data.get("items", []):
+                video_id = item.get("id", {}).get("videoId")
+                if not video_id:
+                    continue
+
                 results.append(
                     VideoResult(
-                        title=item["snippet"]["title"],
-                        channel=item["snippet"]["channelTitle"],
+                        title=html.unescape(item["snippet"]["title"]),
+                        channel=html.unescape(item["snippet"]["channelTitle"]),
                         published=item["snippet"]["publishedAt"],
-                        video_id=item["id"]["videoId"]
+                        video_id=video_id
                     )
                 )
 
